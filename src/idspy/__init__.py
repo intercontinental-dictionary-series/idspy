@@ -1,5 +1,3 @@
-import pathlib
-
 import attr
 import pylexibank
 
