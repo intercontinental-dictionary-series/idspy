@@ -31,10 +31,14 @@ class IDSEntry:
 
 
 class IDSDataset(pylexibank.Dataset):
-    dir = pathlib.Path(__file__).parent
-
     lexeme_class = IDSLexeme
     language_class = IDSLanguage
+    form_spec = pylexibank.FormSpec(
+        brackets={"(": ")"},
+        separators=";",
+        missing_data=('?', '-'),
+        strip_inside_brackets=False
+    )
 
     def entry_from_row(self, row):
         """
