@@ -22,6 +22,7 @@ setup(
     platforms='any',
     python_requires='>=3.5',
     install_requires=[
+        'clldutils',
         'pylexibank',
     ],
     extras_require={
