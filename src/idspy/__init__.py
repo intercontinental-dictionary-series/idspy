@@ -2,6 +2,8 @@ import attr
 import pylexibank
 from clldutils.misc import nfilter
 from itertools import chain
+import unicodedata
+import re
 
 __all__ = ['IDSDataset', 'IDSEntry', 'IDSLanguage', 'IDSLexeme']
 
@@ -99,3 +101,111 @@ class IDSDataset(pylexibank.Dataset):
             args.writer.objects['ParameterTable'],
             key=lambda i: _x(i['ID'])
         )
+
+    # --- the following code should only be used for the general IDS data repo --- #
+    cyrill2phonemic_lgs = list(range(26, 36)) + list(range(37, 43))\
+        + list(range(50, 53)) + list(range(54, 76))\
+        + [80, 81, 107, 160, 162, 164, 165, 166, 316, 317]\
+        + list(range(500, 535))
+
+    def norm(self, f, desc, lid):
+        """
+        Normalize systematic issues
+        """
+        f_ = re.sub(r'[’‘′´]', 'ʼ', f.strip())
+        for s, r in [
+                    ('\u007f', ''),
+                    ('\uf11e', '\ufffd'),
+                    ('\uf8ff', '\ufffd'),
+                    ('\u2028', ' '),
+                    (' )', ')')
+                ]:
+            f_ = f_.replace(s, r)
+        if desc and desc.lower() == 'phonemic' and\
+                int(lid) in self.cyrill2phonemic_lgs:
+            for s, r in [
+                        ("'", 'ʼ'),
+                        ('ћ', 'ħ'),
+                        ('ӡ', 'ʒ'),
+                        ('‰', 'ä'),
+                        ('ﬁ', 'ˤ'),
+                        ('Ɂ', 'ʔ'),
+                        ('ӣ', 'ī'),
+                        ('ё', 'ö'),
+                        ('ť', 'tʼ'),
+                        ('t̛', 'tʼ'),
+                        ('q̛', 'qʼ'),
+                        ('k̛', 'kʼ'),
+                        ('Ι', 'ʕ'),
+                        ('λ', 'ɬ'),
+                        ('č̛', 'čʼ'),
+                        ('c̛', 'cʼ')
+                    ]:
+                f_ = f_.replace(s, r)
+            # replace cyrillic letters which should be latin one
+            # and decompose them in beforehand
+            f_ = unicodedata.normalize('NFD', f_)
+            for s, r in [
+                        ('е', 'e'),
+                        ('а', 'a'),
+                        ('о', 'o'),
+                        ('х', 'x'),
+                        ('у', 'u'),
+                        ('с', 'c')
+                    ]:
+                f_ = f_.replace(s, r)
+        return unicodedata.normalize('NFC', f_)
+
+    def preprocess_form_comment(self, f, desc, lid, com, pid):
+        """
+        Correct/clean systematic issues with comments and normalize forms
+        """
+
+        def cc(str, s):
+            return '{0}{1}{2}'.format(str if str else '', ' ' if str else '', s)
+
+        f_ = self.norm(f, desc, lid)
+        com_ = com.replace('\u2028', ' ')
+        com_ = com_.replace('\u00a0', '')
+        com_ = com_.replace('\u007f', '')
+        com_ = com_.replace('( ', '(')
+        com_ = com_.replace(' )', ')')
+
+        # catch final (?)
+        if re.search(r' ?\(\?\)$', f_):
+            f_ = re.sub(r' ?\(\?\)$', '', f_)
+            com_ = cc(com_, '(?)')
+
+        # catch check p.20
+        if f_.endswith(' check p.20'):
+            f_ = f_.replace(' check p.20', '')
+            com_ = cc(com_, 'check p.20')
+
+        # catch (sb.)
+        if f_.endswith(' (sb.)'):
+            f_ = f_.replace(' (sb.)', '')
+            com_ = cc(com_, '(sb.)')
+
+        # catch (f.)
+        if f_.endswith(' (f.)'):
+            f_ = f_.replace(' (f.)', '')
+            com_ = cc(com_, '(f.)')
+
+        # catch (m.)
+        if f_.endswith(' (m.)'):
+            f_ = f_.replace(' (m.)', '')
+            com_ = cc(com_, '(m.)')
+
+        # catch (T(+...))
+        m = re.findall(r'( *(\( *T\.?(\+N.?)?\)) *$)', f_)
+        if m and len(m[0]) == 3:
+            f_ = f_.replace(m[0][0], '')
+            com_ = cc(com, m[0][1])
+
+        # catch (N(+...))
+        m = re.findall(r'( *(\( *[NK]\.?\+ *T\.?\)) *$)', f_)
+        if m and len(m[0]) == 2:
+            f_ = f_.replace(m[0][0], '')
+            com_ = cc(com_, m[0][1])
+
+        return f_.strip(), com_.strip()
