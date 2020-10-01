@@ -44,7 +44,8 @@ class IDSDataset(pylexibank.Dataset):
         brackets={"(": ")"},
         separators=";",
         missing_data=('?', '-'),
-        strip_inside_brackets=False
+        strip_inside_brackets=False,
+        normalize_unicode="NFD",
     )
 
     def entry_from_row(self, row):
