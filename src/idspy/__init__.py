@@ -209,4 +209,50 @@ class IDSDataset(pylexibank.Dataset):
             f_ = f_.replace(m[0][0], '')
             com_ = cc(com_, m[0][1])
 
+        # catch neutralization forms for Modern Greek
+        if lid == '168':
+            m = re.findall(r'( +(\[.+?\])\s*)$', f_)
+            if m:
+                f_ = f_.replace(m[0][0], '')
+                com_ = cc(com_, m[0][1])
+
+        # catch (poss) for Lengua
+        if lid == '300':
+            f_ = f_.replace('-(poss.)-', '...')
+            f_ = f_.replace('-(poss)-', '...')
+
+        # catch PAN for Proto Austronesian
+        if lid == '233':
+            if 'PAN' in f_:
+                f_ = f_.replace('*PAN', '')
+                f_ = f_.replace('PAN', '')
+                if com_:
+                    com_ = 'PAN; {0}'.format(com_)
+                else:
+                    com_ = 'PAN'
+
+        # catch PAN for Proto Polynesian
+        if lid == '234':
+            if 'PNP' in f_:
+                f_ = f_.replace('*PNP', '')
+                f_ = f_.replace('PNP', '')
+                if com_:
+                    com_ = 'PNP; {0}'.format(com_)
+                else:
+                    com_ = 'PNP'
+            if 'PPN' in f_:
+                f_ = f_.replace('*PPN', '')
+                f_ = f_.replace('PPN', '')
+                if com_:
+                    com_ = 'PPN; {0}'.format(com_)
+                else:
+                    com_ = 'PPN'
+            if 'PEP' in f_:
+                f_ = f_.replace('*PEP', '')
+                f_ = f_.replace('PEP', '')
+                if com_:
+                    com_ = 'PEP; {0}'.format(com_)
+                else:
+                    com_ = 'PEP'
+
         return f_.strip(), com_.strip()
