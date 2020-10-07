@@ -119,6 +119,9 @@ class IDSDataset(pylexibank.Dataset):
                     ('\uf11e', '\ufffd'),
                     ('\uf8ff', '\ufffd'),
                     ('\u2028', ' '),
+                    ('ʧ', 'tʃ'),
+                    ('ʤ', 'dʒ'),
+                    ('ε', 'ɛ'),
                     (' )', ')')
                 ]:
             f_ = f_.replace(s, r)
@@ -218,8 +221,8 @@ class IDSDataset(pylexibank.Dataset):
 
         # catch (poss) for Lengua
         if lid == '300':
-            f_ = f_.replace('-(poss.)-', '...')
-            f_ = f_.replace('-(poss)-', '...')
+            f_ = f_.replace('-(poss.)-', '-...-')
+            f_ = f_.replace('-(poss)-', '-...-')
 
         # catch PAN for Proto Austronesian
         if lid == '233':
@@ -254,5 +257,32 @@ class IDSDataset(pylexibank.Dataset):
                     com_ = 'PEP; {0}'.format(com_)
                 else:
                     com_ = 'PEP'
+
+        # catch cases like ... R?
+        if lid in ['832', '833', '834', '837']:
+            m = re.findall(r'(\s+([A-Z]+\?)\s*$)', f_)
+            if m and len(m[0]) == 2:
+                f_ = f_.replace(m[0][0], '')
+                com_ = cc(com_, m[0][1])
+            if ' T+' in f_:
+                f_ = f_.replace(' T+', '')
+                com_ = cc(com_, 'T+')
+            if ' +T' in f_:
+                f_ = f_.replace(' +T', '')
+                com_ = cc(com_, '+T')
+
+        # catch not known tone -> # sign
+        if lid in ['831']:
+            f_ = f_.replace('.???', '.#')
+
+        # catch vertical line -> dental click
+        if lid in ['704']:
+            f_ = f_.replace('|', 'ǀ')
+
+        # delete question marks for question words
+        p = pid.split('-')
+        if p[0] == '17' and int(p[1]) > 609:
+            f_ = re.sub(r'\?$', '', f_)
+            f_ = re.sub(r'^¿', '', f_)
 
         return f_.strip(), com_.strip()
