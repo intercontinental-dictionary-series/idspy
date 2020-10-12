@@ -1,9 +1,10 @@
+import re
+import itertools
+import unicodedata
+
 import attr
 import pylexibank
 from clldutils.misc import nfilter
-from itertools import chain
-import unicodedata
-import re
 
 __all__ = ['IDSDataset', 'IDSEntry', 'IDSLanguage', 'IDSLexeme']
 
@@ -67,8 +68,9 @@ class IDSDataset(pylexibank.Dataset):
     def get_personnel(self, args):
         personnel = {'author': [], 'data entry': [], 'consultant': []}
         try:
-            for d in chain.from_iterable(
-                    chain(pylexibank.get_creators_and_contributors(self.dir / "CONTRIBUTORS.md"))):
+            for d in itertools.chain.from_iterable(
+                    itertools.chain(
+                        pylexibank.get_creators_and_contributors(self.dir / "CONTRIBUTORS.md"))):
                 if 'name' in d and d['name']:
                     for desc in nfilter([r.strip().lower()
                                         for r in d.get('description', '').split(',')]):
@@ -115,48 +117,48 @@ class IDSDataset(pylexibank.Dataset):
         """
         f_ = re.sub(r'[’‘′´]', 'ʼ', f.strip())
         for s, r in [
-                    ('\u007f', ''),
-                    ('\uf11e', '\ufffd'),
-                    ('\uf8ff', '\ufffd'),
-                    ('\u2028', ' '),
-                    ('ʧ', 'tʃ'),
-                    ('ʤ', 'dʒ'),
-                    ('ε', 'ɛ'),
-                    (' )', ')')
-                ]:
+            ('\u007f', ''),
+            ('\uf11e', '\ufffd'),
+            ('\uf8ff', '\ufffd'),
+            ('\u2028', ' '),
+            ('ʧ', 'tʃ'),
+            ('ʤ', 'dʒ'),
+            ('ε', 'ɛ'),
+            (' )', ')')
+        ]:
             f_ = f_.replace(s, r)
         if desc and desc.lower() == 'phonemic' and\
                 int(lid) in self.cyrill2phonemic_lgs:
             for s, r in [
-                        ("'", 'ʼ'),
-                        ('ћ', 'ħ'),
-                        ('ӡ', 'ʒ'),
-                        ('‰', 'ä'),
-                        ('ﬁ', 'ˤ'),
-                        ('Ɂ', 'ʔ'),
-                        ('ӣ', 'ī'),
-                        ('ё', 'ö'),
-                        ('ť', 'tʼ'),
-                        ('t̛', 'tʼ'),
-                        ('q̛', 'qʼ'),
-                        ('k̛', 'kʼ'),
-                        ('Ι', 'ʕ'),
-                        ('λ', 'ɬ'),
-                        ('č̛', 'čʼ'),
-                        ('c̛', 'cʼ')
-                    ]:
+                ("'", 'ʼ'),
+                ('ћ', 'ħ'),
+                ('ӡ', 'ʒ'),
+                ('‰', 'ä'),
+                ('ﬁ', 'ˤ'),
+                ('Ɂ', 'ʔ'),
+                ('ӣ', 'ī'),
+                ('ё', 'ö'),
+                ('ť', 'tʼ'),
+                ('t̛', 'tʼ'),
+                ('q̛', 'qʼ'),
+                ('k̛', 'kʼ'),
+                ('Ι', 'ʕ'),
+                ('λ', 'ɬ'),
+                ('č̛', 'čʼ'),
+                ('c̛', 'cʼ')
+            ]:
                 f_ = f_.replace(s, r)
             # replace cyrillic letters which should be latin one
             # and decompose them in beforehand
             f_ = unicodedata.normalize('NFD', f_)
             for s, r in [
-                        ('е', 'e'),
-                        ('а', 'a'),
-                        ('о', 'o'),
-                        ('х', 'x'),
-                        ('у', 'u'),
-                        ('с', 'c')
-                    ]:
+                ('е', 'e'),
+                ('а', 'a'),
+                ('о', 'o'),
+                ('х', 'x'),
+                ('у', 'u'),
+                ('с', 'c')
+            ]:
                 f_ = f_.replace(s, r)
         return unicodedata.normalize('NFC', f_)
 

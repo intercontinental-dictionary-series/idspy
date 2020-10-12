@@ -1,11 +1,23 @@
+import pathlib
+
+import pytest
+
 from idspy import *
 
 
-class ds(IDSDataset):
-    id = "test"
+@pytest.fixture(scope='session')
+def ds():
+    class _ds(IDSDataset):
+        id = "test"
+        dir = pathlib.Path(__file__).parent / 'ds'
+    return _ds
 
 
-def test_Entry():
+def test_read_csv(ds):
+    assert len(list(ds().read_csv('data.csv'))) == 1
+
+
+def test_Entry(ds):
     row = ['1', '100', '', 'form', 'alt_form', '', '', '', '', 'com']
     c = ds()
     e = c.entry_from_row(row)
@@ -16,38 +28,24 @@ def test_Entry():
     assert e.alt_forms[0] == 'alt_form'
 
 
-def test_preprocess_form_comment():
+@pytest.mark.parametrize(
+    'f, desc, lid, com, pid,aex,bex',
+    [
+        (' ‰abc (T.) ', 'phonemic', '160', 'com', '1', 'äabc', 'com (T.)'),
+        ('abc?', 'phonemic', '160', 'com', '17-610', 'abc', None),
+        ('abc|', 'phonemic', '704', 'com', '1', 'abcǀ', None),
+        ('abc T+', 'phonemic', '832', 'com', '1', 'abc', None),
+        ('abc +T', 'phonemic', '832', 'com', '1', 'abc', None),
+        ('abc R?', 'phonemic', '832', 'com', '1', 'abc', None),
+        ('abc.???', 'phonemic', '831', 'com', '1', 'abc.#', None),
+        ('PPN abc', 'phonemic', '234', 'com', '1', 'abc', 'PPN; com'),
+        ('PEP abc', 'phonemic', '234', 'com', '1', 'abc', 'PEP; com'),
+        ('abc [def]', 'phonemic', '168', '', '1', 'abc', '[def]'),
+    ]
+)
+def test_preprocess_form_comment(ds, f, desc, lid, com, pid, aex, bex):
     c = ds()
-    a, b = c.preprocess_form_comment(' ‰abc (T.) ', 'phonemic', '160', 'com', '1')
-    assert a == 'äabc'
-    assert b == 'com (T.)'
-
-    a, b = c.preprocess_form_comment('abc?', 'phonemic', '160', 'com', '17-610')
-    assert a == 'abc'
-
-    a, b = c.preprocess_form_comment('abc|', 'phonemic', '704', 'com', '1')
-    assert a == 'abcǀ'
-
-    a, b = c.preprocess_form_comment('abc T+', 'phonemic', '832', 'com', '1')
-    assert a == 'abc'
-
-    a, b = c.preprocess_form_comment('abc +T', 'phonemic', '832', 'com', '1')
-    assert a == 'abc'
-
-    a, b = c.preprocess_form_comment('abc R?', 'phonemic', '832', 'com', '1')
-    assert a == 'abc'
-
-    a, b = c.preprocess_form_comment('abc.???', 'phonemic', '831', 'com', '1')
-    assert a == 'abc.#'
-
-    a, b = c.preprocess_form_comment('PPN abc', 'phonemic', '234', 'com', '1')
-    assert a == 'abc'
-    assert b == 'PPN; com'
-
-    a, b = c.preprocess_form_comment('PEP abc', 'phonemic', '234', 'com', '1')
-    assert a == 'abc'
-    assert b == 'PEP; com'
-
-    a, b = c.preprocess_form_comment('abc [def]', 'phonemic', '168', '', '1')
-    assert a == 'abc'
-    assert b == '[def]'
+    a, b = c.preprocess_form_comment(f, desc, lid, com, pid)
+    assert a == aex
+    if bex is not None:
+        assert b == bex
