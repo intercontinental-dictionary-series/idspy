@@ -23,7 +23,9 @@ setup(
     python_requires='>=3.5',
     install_requires=[
         'clldutils',
-        'pylexibank',
+        'pybtex<0.23; python_version < "3.6"',
+        'pybtex; python_version > "3.5"',
+        'pylexibank>=2.7.2',
     ],
     extras_require={
         'dev': ['flake8', 'wheel', 'twine'],
