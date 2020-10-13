@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='idspy',
-    version='0.1.1.dev0',
+    version='0.1.0',
     author='Robert Forkel',
     author_email='forkel@shh.mpg.de',
     description='Python library providing shared code for IDS datasets',
