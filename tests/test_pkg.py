@@ -10,16 +10,20 @@ def ds():
     class _ds(IDSDataset):
         id = "test"
         dir = pathlib.Path(__file__).parent / 'ds'
-    return _ds
+    return _ds()
 
 
 def test_read_csv(ds):
-    assert len(list(ds().read_csv('data.csv'))) == 1
+    assert len(list(ds.read_csv('data.csv'))) == 1
+
+
+def test_read_get_personnel(ds, mocker):
+    assert 'author' in ds.get_personnel(mocker.Mock())
 
 
 def test_Entry(ds):
     row = ['1', '100', '', 'form', 'alt_form', '', '', '', '', 'com']
-    c = ds()
+    c = ds
     e = c.entry_from_row(row)
     assert e.ids_id == '1-100'
     assert e.alt_forms[0] == 'alt_form'
@@ -44,8 +48,7 @@ def test_Entry(ds):
     ]
 )
 def test_preprocess_form_comment(ds, f, desc, lid, com, pid, aex, bex):
-    c = ds()
-    a, b = c.preprocess_form_comment(f, desc, lid, com, pid)
+    a, b = ds.preprocess_form_comment(f, desc, lid, com, pid)
     assert a == aex
     if bex is not None:
         assert b == bex

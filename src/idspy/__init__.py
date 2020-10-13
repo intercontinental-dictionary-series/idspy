@@ -78,7 +78,7 @@ class IDSDataset(pylexibank.Dataset):
                             personnel[desc].append(d['name'])
                 else:
                     args.log.warn("No 'name' found in file 'CONTRIBUTORS.md'")
-        except FileNotFoundError:
+        except FileNotFoundError:  # pragma: no cover
             args.log.warn("File 'CONTRIBUTORS.md' not found")
         return personnel
 
