@@ -28,7 +28,7 @@ setup(
         'pybtex<0.23; python_version < "3.6"',
         'pybtex; python_version > "3.5"',
         'pylexibank>=2.8.2',
-        'openpyxl>=3.0.5',
+        'openpyxl',
     ],
     extras_require={
         'dev': ['flake8', 'wheel', 'twine'],
