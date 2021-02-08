@@ -82,7 +82,7 @@ def create_language_sheet(dataset, args):
         for c in header_letters:
             wa["{}{}".format(c, row_cnt)].font = cell_font
 
-    for i in range(2, len(header)):
-        wa.column_dimensions[openpyxl.utils.get_column_letter(i+1)].width = 36
+    for i in header_letters:
+        wa.column_dimensions[i].width = 36
 
     wb.save(xlsx_path)
