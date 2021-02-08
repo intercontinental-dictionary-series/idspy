@@ -17,7 +17,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     entry_points={
-    # FIXME: provide a cldfbench scaffold!
+        "cldfbench.commands": [
+            "idspy=idspy.commands",
+        ]
     },
     platforms='any',
     python_requires='>=3.5',
@@ -25,7 +27,8 @@ setup(
         'clldutils',
         'pybtex<0.23; python_version < "3.6"',
         'pybtex; python_version > "3.5"',
-        'pylexibank>=2.7.2',
+        'pylexibank>=2.8.2',
+        'openpyxl>=3.0.5',
     ],
     extras_require={
         'dev': ['flake8', 'wheel', 'twine'],
