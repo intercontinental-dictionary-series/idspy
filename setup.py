@@ -22,11 +22,10 @@ setup(
         ]
     },
     platforms='any',
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=[
         'clldutils',
-        'pybtex<0.23; python_version < "3.6"',
-        'pybtex; python_version > "3.5"',
+        'pybtex',
         'pylexibank>=2.8.2',
         'openpyxl',
     ],
@@ -46,7 +45,6 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
