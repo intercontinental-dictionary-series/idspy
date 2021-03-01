@@ -65,12 +65,14 @@ class IDSDataset(pylexibank.Dataset):
                 row[0:2] = [int(float(c)) for c in row[0:2]]
                 yield self.entry_from_row(row)
 
-    def get_personnel(self, args):
+    def get_personnel(self, args, contributors_path=None):
+        if contributors_path is None:
+            contributors_path = self.dir / "CONTRIBUTORS.md"
         personnel = {'author': [], 'data entry': [], 'consultant': []}
         try:
             for d in itertools.chain.from_iterable(
                     itertools.chain(
-                        pylexibank.get_creators_and_contributors(self.dir / "CONTRIBUTORS.md"))):
+                        pylexibank.get_creators_and_contributors(contributors_path))):
                 if 'name' in d and d['name']:
                     for desc in nfilter([r.strip().lower()
                                         for r in d.get('description', '').split(',')]):
@@ -79,7 +81,7 @@ class IDSDataset(pylexibank.Dataset):
                 else:
                     args.log.warn("No 'name' found in file 'CONTRIBUTORS.md'")
         except FileNotFoundError:  # pragma: no cover
-            args.log.warn("File 'CONTRIBUTORS.md' not found")
+            args.log.warn("File '{}' not found".format(contributors_path))
         return personnel
 
     def apply_cldf_defaults(self, args):
