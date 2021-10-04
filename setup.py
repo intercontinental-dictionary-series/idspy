@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 
 setup(
     name='idspy',
-    version='0.2.1.dev0',
-    author='Robert Forkel',
-    author_email='forkel@shh.mpg.de',
+    version='0.3.0',
+    author='Robert Forkel and Hans-Jörg Bibiko',
+    author_email='dlce.rdm@eva.mpg.de',
     description='Python library providing shared code for IDS datasets',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
