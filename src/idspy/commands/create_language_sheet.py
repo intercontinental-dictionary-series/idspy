@@ -1,9 +1,7 @@
 """
 Generates etc/*.xlsx file for editing of passed language ID
 """
-import pathlib
 import openpyxl
-import pycldf
 import pylexibank
 
 from cldfbench.cli_util import with_dataset, add_dataset_spec
@@ -36,7 +34,6 @@ def create_language_sheet(dataset, args):
     ds = dataset.cldf_reader()
 
     desired_lang_id = str(args.lang_id)
-    desired_fields = ['Parameter_ID', 'Form', 'Comment', 'AlternativeValues']
 
     lg = ds.get_row('LanguageTable', desired_lang_id)
     assert lg
@@ -54,7 +51,7 @@ def create_language_sheet(dataset, args):
         header += colnames
         nr_additional_cols = len(colnames)
     header += ['Comment']
-    header_letters = [openpyxl.utils.get_column_letter(i+1) for i in range(len(header))]
+    header_letters = [openpyxl.utils.get_column_letter(i + 1) for i in range(len(header))]
 
     wb = openpyxl.Workbook()
     wa = wb.active
