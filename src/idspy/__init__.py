@@ -1,28 +1,29 @@
 import re
 import itertools
+import dataclasses
 import unicodedata
+from typing import Optional
 
-import attr
 import pylexibank
 from clldutils.misc import nfilter
 
 __all__ = ['IDSDataset', 'IDSEntry', 'IDSLanguage', 'IDSLexeme']
 
 
-@attr.s
+@dataclasses.dataclass
 class IDSLexeme(pylexibank.Lexeme):
-    Transcriptions = attr.ib(default=None)
-    AlternativeValues = attr.ib(default=None)
+    Transcriptions: Optional[str] = None
+    AlternativeValues: Optional[str] = None
 
 
-@attr.s
+@dataclasses.dataclass
 class IDSLanguage(pylexibank.Language):
-    Authors = attr.ib(default=None)
-    DataEntry = attr.ib(default=None)
-    Consultants = attr.ib(default=None)
-    Representations = attr.ib(default=None)
-    alt_names = attr.ib(default=None)
-    date = attr.ib(default=None)
+    Authors: Optional[str] = None
+    DataEntry: Optional[str] = None
+    Consultants: Optional[str] = None
+    Representations: Optional[str] = None
+    alt_names: Optional[str] = None
+    date: Optional[str] = None
 
 
 class IDSEntry:
@@ -81,7 +82,7 @@ class IDSDataset(pylexibank.Dataset):
                 else:
                     args.log.warn("No 'name' found in file 'CONTRIBUTORS.md'")
         except FileNotFoundError:  # pragma: no cover
-            args.log.warn("File '{}' not found".format(contributors_path))
+            args.log.warn("File '%s' not found", contributors_path)
         return personnel
 
     def apply_cldf_defaults(self, args):

@@ -37,7 +37,7 @@ def create_language_sheet(dataset, args):
 
     lg = ds.get_row('LanguageTable', desired_lang_id)
     assert lg
-    args.log.info('creating Excel sheet for "{}" ...'. format(lg['Name']))
+    args.log.info('creating Excel sheet for "%s" ...', lg['Name'])
 
     params_id2name = dict((p['ID'], p['Name']) for p in ds['ParameterTable'])
 
